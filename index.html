@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full select-none">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#020617" />
+  <title>OriginOS Liquid Glass Launcher</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Material Symbols & Fonts -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            cyan: {
+              350: '#4eedff',
+              450: '#00d2f0',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --glass-blur: 28px;
+      --glass-opacity: 0.18;
+      --glass-border: rgba(255, 255, 255, 0.28);
+      --glass-specular: rgba(255, 255, 255, 0.55);
+      --safe-top: env(safe-area-inset-top, 24px);
+      --safe-bottom: env(safe-area-inset-bottom, 20px);
+    }
+
+    * {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      touch-action: manipulation;
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+      background-color: #030712;
+      position: fixed;
+    }
+
+    /* Multi-layered Liquid Glassmorphism */
+    .liquid-glass {
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, calc(var(--glass-opacity) * 1.35)) 0%,
+        rgba(255, 255, 255, calc(var(--glass-opacity) * 0.45)) 100%
+      );
+      backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+      -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+      border: 1px solid var(--glass-border);
+      box-shadow:
+        0 8px 32px 0 rgba(0, 0, 0, 0.37),
+        inset 0 1px 1px 0 var(--glass-specular),
+        inset 0 -1px 2px 0 rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+
+    .liquid-glass-dock {
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.24) 0%,
+        rgba(255, 255, 255, 0.08) 100%
+      );
+      backdrop-filter: blur(36px) saturate(210%);
+      -webkit-backdrop-filter: blur(36px) saturate(210%);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.55),
+        0 1px 0 inset rgba(255, 255, 255, 0.7),
+        0 -1px 0 inset rgba(255, 255, 255, 0.15);
+    }
+
+    .liquid-pill {
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.22) 0%,
+        rgba(15, 23, 42, 0.65) 100%
+      );
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow:
+        0 12px 30px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    }
+
+    /* Animated Refraction Light Sweep */
+    .shimmer-active::after {
+      content: '';
+      position: absolute;
+      top: -60%;
+      left: -60%;
+      width: 220%;
+      height: 220%;
+      background: linear-gradient(
+        60deg,
+        transparent 35%,
+        rgba(255, 255, 255, 0.16) 45%,
+        rgba(255, 255, 255, 0.32) 50%,
+        rgba(255, 255, 255, 0.16) 55%,
+        transparent 65%
+      );
+      transform: rotate(25deg);
+      animation: glassShimmer 8s infinite linear;
+      pointer-events: none;
+    }
+
+    @keyframes glassShimmer {
+      0% { transform: translateX(-150%) rotate(25deg); }
+      35% { transform: translateX(150%) rotate(25deg); }
+      100% { transform: translateX(150%) rotate(25deg); }
+    }
+
+    /* Spring Physics & Fluid Transitions */
+    .spring-press {
+      transition: transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.26s ease, filter 0.26s ease;
+      will-change: transform;
+    }
+    .spring-press:active {
+      transform: scale(0.92);
+      filter: brightness(1.15);
+    }
+
+    /* Equalizer Wave Animation */
+    .bar-anim-1 { animation: wavePulse 1.1s ease-in-out infinite alternate; }
+    .bar-anim-2 { animation: wavePulse 0.8s ease-in-out infinite alternate 0.2s; }
+    .bar-anim-3 { animation: wavePulse 1.4s ease-in-out infinite alternate 0.4s; }
+    .bar-anim-4 { animation: wavePulse 0.9s ease-in-out infinite alternate 0.1s; }
+
+    @keyframes wavePulse {
+      0% { height: 4px; }
+      100% { height: 20px; }
+    }
+
+    /* Drawer Transition */
+    #app-drawer {
+      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+      will-change: transform;
+    }
+
+    /* Hide scrollbar */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Wallpaper Canvas Glow */
+    .bg-wall-glow {
+      background: radial-gradient(circle at 50% 20%, rgba(34, 211, 238, 0.15) 0%, transparent 60%),
+                  radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.18) 0%, transparent 60%);
+    }
+
+    /* Material Symbols styling */
+    .material-symbols-rounded {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
+</head>
+
+<body class="relative text-white font-sans overflow-hidden select-none">
+  <!-- Dynamic Dynamic Wallpaper Background Layer -->
+  <div id="wallpaper-bg" class="absolute inset-0 bg-cover bg-center transition-all duration-700 ease-out transform scale-100" style="background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1600&q=80');">
+    <!-- Ambient mesh overlay -->
+    <div class="absolute inset-0 bg-wall-glow pointer-events-none"></div>
+    <div class="absolute inset-0 bg-black/35 backdrop-blur-[1px] pointer-events-none"></div>
+  </div>
+
+  <!-- Main System UI Viewport -->
+  <div class="relative z-10 flex flex-col justify-between h-full w-full max-w-lg mx-auto pt-[var(--safe-top)] pb-[var(--safe-bottom)] px-4">
+
+    <!-- TOP SECTION: Status Bar & Atomic Island -->
+    <header class="w-full flex flex-col items-center pt-2">
+      <!-- Status row -->
+      <div class="w-full flex justify-between items-center px-2 text-xs font-semibold tracking-wide text-white/80 mb-2">
+        <span id="status-time" class="tracking-tight text-sm font-bold text-white drop-shadow">09:41</span>
+        <div class="flex items-center space-x-2">
+          <span class="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/30">5G+</span>
+          <span class="material-symbols-rounded text-sm">wifi</span>
+          <span class="material-symbols-rounded text-sm">signal_cellular_alt</span>
+          <div class="flex items-center space-x-1">
+            <span id="status-battery-num" class="text-[11px] font-mono">98%</span>
+            <span class="material-symbols-rounded text-sm text-cyan-400">battery_charging_full</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ATOMIC ISLAND CAPSULE (Dynamic Morphing Island) -->
+      <div id="atomic-island-wrapper" class="w-full flex justify-center">
+        <!-- Collapsed Pill -->
+        <div id="atomic-island-pill" onclick="expandIsland()" class="liquid-pill shimmer-active cursor-pointer flex items-center justify-between px-3.5 py-1.5 rounded-full w-auto min-w-[210px] max-w-[280px] spring-press shadow-2xl transition-all duration-300">
+          <div class="flex items-center space-x-2 overflow-hidden">
+            <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]"></div>
+            <!-- Animated equalizer bars -->
+            <div class="flex items-end space-x-0.5 h-4 w-4">
+              <span class="w-0.5 bg-cyan-300 rounded-full bar-anim-1"></span>
+              <span class="w-0.5 bg-cyan-300 rounded-full bar-anim-2"></span>
+              <span class="w-0.5 bg-cyan-300 rounded-full bar-anim-3"></span>
+              <span class="w-0.5 bg-cyan-300 rounded-full bar-anim-4"></span>
+            </div>
+            <span id="island-pill-title" class="text-xs font-medium text-white/95 truncate max-w-[120px]">Liquid Flow</span>
+          </div>
+          <div class="flex items-center space-x-1.5 pl-2 border-l border-white/20">
+            <span class="material-symbols-rounded text-xs text-cyan-300">graphic_eq</span>
+            <span class="text-[10px] font-mono text-cyan-200">Hi-Res</span>
+          </div>
+        </div>
+
+        <!-- Expanded Dynamic Island Card -->
+        <div id="atomic-island-expanded" class="hidden liquid-glass shimmer-active w-full rounded-3xl p-4.5 p-4 shadow-2xl border border-white/30 transform transition-all duration-300 ease-out">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center space-x-2">
+              <span class="px-2 py-0.5 text-[10px] font-bold tracking-wider rounded-md bg-cyan-500/25 text-cyan-300 border border-cyan-400/40 uppercase">OriginOS Dynamic Sound</span>
+              <span class="text-xs text-white/60">· Super Audio 4.0</span>
+            </div>
+            <button onclick="collapseIsland()" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition">
+              <span class="material-symbols-rounded text-base">close</span>
+            </button>
+          </div>
+
+          <div class="flex items-center space-x-3.5">
+            <!-- Glass album art -->
+            <div class="relative w-14 h-14 rounded-2xl overflow-hidden shadow-lg border border-white/30 flex-shrink-0 bg-gradient-to-tr from-cyan-600 via-indigo-600 to-fuchsia-600 flex items-center justify-center">
+              <span class="material-symbols-rounded text-2xl text-white">album</span>
+              <div class="absolute inset-0 bg-white/10 backdrop-blur-[2px]"></div>
+            </div>
+
+            <!-- Song info & equalizer -->
+            <div class="flex-1 min-w-0">
+              <h4 class="font-bold text-sm text-white truncate">Crystal Symphony (Liquid Version)</h4>
+              <p class="text-xs text-cyan-200/90 truncate">iQOO Audio Acoustics Lab</p>
+              <!-- Interactive seek slider -->
+              <div class="w-full mt-2 flex items-center space-x-2">
+                <span class="text-[10px] font-mono text-white/60">01:42</span>
+                <div class="flex-1 h-1.5 bg-white/15 rounded-full overflow-hidden relative cursor-pointer" onclick="scrubTrack(event)">
+                  <div id="track-progress-bar" class="h-full bg-gradient-to-r from-cyan-400 to-blue-400 rounded-full w-[45%]"></div>
+                </div>
+                <span class="text-[10px] font-mono text-white/60">03:50</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Playback controls & quick toggles -->
+          <div class="flex items-center justify-between mt-3 pt-2 border-t border-white/15">
+            <div class="flex items-center space-x-1">
+              <button onclick="toggleQuickToggle('battery-saver')" id="toggle-battery-saver" class="px-2.5 py-1 rounded-xl text-xs bg-white/10 hover:bg-white/20 text-white/80 flex items-center space-x-1 spring-press">
+                <span class="material-symbols-rounded text-sm text-amber-300">bolt</span>
+                <span class="text-[11px]">Monster Mode</span>
+              </button>
+              <button onclick="toggleQuickToggle('torch')" id="toggle-torch" class="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 spring-press">
+                <span class="material-symbols-rounded text-sm">flashlight_on</span>
+              </button>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              <button onclick="skipTrack(-1)" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/80 hover:text-white spring-press">
+                <span class="material-symbols-rounded text-lg">skip_previous</span>
+              </button>
+              <button onclick="togglePlayMusic()" id="island-play-btn" class="w-10 h-10 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center font-bold shadow-[0_0_16px_rgba(34,211,238,0.5)] spring-press">
+                <span id="island-play-icon" class="material-symbols-rounded text-xl">pause</span>
+              </button>
+              <button onclick="skipTrack(1)" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/80 hover:text-white spring-press">
+                <span class="material-symbols-rounded text-lg">skip_next</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MIDDLE SECTION: OriginOS Liquid Glass Clock & Atomic System Cards -->
+    <main class="flex-1 flex flex-col justify-center space-y-4 my-auto overflow-y-auto no-scrollbar py-2">
+      <!-- 1. OriginOS Liquid Glass Clock & Weather Widget -->
+      <section onclick="openApp('Clock', 'schedule')" class="liquid-glass shimmer-active rounded-[28px] p-5 shadow-2xl cursor-pointer spring-press group">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="flex items-baseline space-x-1.5">
+              <span id="clock-hour-min" class="text-6xl font-extrabold tracking-tighter bg-gradient-to-b from-white via-slate-100 to-slate-300 bg-clip-text text-transparent drop-shadow-sm font-sans">
+                12:45
+              </span>
+              <span id="clock-seconds" class="text-lg font-mono font-bold text-cyan-300 animate-pulse">48</span>
+            </div>
+            <div class="flex items-center space-x-2 mt-1">
+              <span id="clock-date" class="text-sm font-medium text-white/85">Friday, Oct 24</span>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-white/15 text-white/90 border border-white/20">Autumn Sun</span>
+            </div>
+          </div>
+
+          <!-- Weather Glass Badge -->
+          <div class="flex flex-col items-end">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400/30 to-cyan-400/30 border border-white/30 flex items-center justify-center backdrop-blur-md shadow-inner">
+              <span class="material-symbols-rounded text-3xl text-amber-300 drop-shadow">partly_cloudy_day</span>
+            </div>
+            <span class="text-xl font-bold mt-1 text-white">26°C</span>
+            <div class="flex items-center space-x-1 text-[11px] text-cyan-200">
+              <span class="material-symbols-rounded text-xs">air</span>
+              <span>AQI 24 · Prime</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3 pt-2.5 border-t border-white/10 flex justify-between items-center text-xs text-white/70">
+          <div class="flex items-center space-x-1.5">
+            <span class="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_6px_#22d3ee]"></span>
+            <span>OriginOS 4 Ocean Desktop</span>
+          </div>
+          <span class="text-cyan-300 text-[11px] flex items-center font-medium">Atomic Components <span class="material-symbols-rounded text-sm ml-0.5">chevron_right</span></span>
+        </div>
+      </section>
+
+      <!-- 2. Dual Quick Atomic Cards -->
+      <div class="grid grid-cols-2 gap-3.5">
+        <!-- Atomic System Spec Card -->
+        <div onclick="openApp('iManager', 'verified_user')" class="liquid-glass shimmer-active rounded-3xl p-3.5 shadow-xl cursor-pointer spring-press flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <div class="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-300">
+              <span class="material-symbols-rounded text-lg">memory</span>
+            </div>
+            <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-cyan-400/20 text-cyan-300 font-bold border border-cyan-400/40">V-GPU 4.0</span>
+          </div>
+          <div class="mt-2.5">
+            <div class="text-[11px] text-white/70">Snapdragon 8 Gen 3</div>
+            <div class="text-sm font-bold text-white flex items-center space-x-1">
+              <span>16GB + 16GB</span>
+              <span class="text-[10px] text-emerald-400">Turbo</span>
+            </div>
+          </div>
+          <div class="mt-2">
+            <div class="flex justify-between text-[10px] text-white/60 mb-0.5">
+              <span>RAM Load</span>
+              <span id="ram-usage-text">42%</span>
+            </div>
+            <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+              <div id="ram-progress" class="h-full bg-cyan-400 rounded-full w-[42%]"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Atomic Clean & Boost Card -->
+        <div onclick="boostSystem(event)" class="liquid-glass shimmer-active rounded-3xl p-3.5 shadow-xl cursor-pointer spring-press flex flex-col justify-between group">
+          <div class="flex items-center justify-between">
+            <div class="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-400/40 flex items-center justify-center text-purple-300">
+              <span class="material-symbols-rounded text-lg">rocket_launch</span>
+            </div>
+            <span id="system-temp-badge" class="text-[10px] font-mono text-emerald-300 flex items-center">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1 animate-ping"></span>31°C Cool
+            </span>
+          </div>
+          <div class="mt-2">
+            <div class="text-[11px] text-white/70">Atomic Clean Engine</div>
+            <div id="boost-status-title" class="text-sm font-bold text-white group-hover:text-cyan-300 transition">One-Tap Deep Boost</div>
+          </div>
+          <button class="mt-2 w-full py-1 rounded-xl bg-white/15 hover:bg-white/25 text-[11px] font-semibold text-white/90 flex items-center justify-center space-x-1 border border-white/20">
+            <span class="material-symbols-rounded text-sm text-cyan-300">speed</span>
+            <span>Optimize Engine</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. Desktop Shortcuts Grid (OriginOS style squircle widgets) -->
+      <div class="grid grid-cols-4 gap-3 pt-1">
+        <!-- Gallery -->
+        <div onclick="openApp('Albums', 'photo_library')" class="flex flex-col items-center space-y-1.5 cursor-pointer spring-press">
+          <div class="w-14 h-14 rounded-[22px] liquid-glass flex items-center justify-center shadow-lg border border-white/30 bg-gradient-to-br from-indigo-500/20 to-pink-500/20">
+            <span class="material-symbols-rounded text-2xl text-pink-300">photo_library</span>
+          </div>
+          <span class="text-[11px] text-white/85 font-medium tracking-tight truncate w-full text-center">Albums</span>
+        </div>
+
+        <!-- Camera -->
+        <div onclick="openApp('Camera', 'photo_camera')" class="flex flex-col items-center space-y-1.5 cursor-pointer spring-press">
+          <div class="w-14 h-14 rounded-[22px] liquid-glass flex items-center justify-center shadow-lg border border-white/30 bg-gradient-to-br from-blue-500/20 to-cyan-500/20">
+            <span class="material-symbols-rounded text-2xl text-cyan-300">photo_camera</span>
+          </div>
+          <span class="text-[11px] text-white/85 font-medium tracking-tight truncate w-full text-center">Zeiss Cam</span>
+        </div>
+
+        <!-- Jovi Voice AI -->
+        <div onclick="openApp('Jovi AI', 'smart_toy')" class="flex flex-col items-center space-y-1.5 cursor-pointer spring-press">
+          <div class="w-14 h-14 rounded-[22px] liquid-glass flex items-center justify-center shadow-lg border border-white/30 bg-gradient-to-br from-violet-500/20 to-cyan-500/20">
+            <span class="material-symbols-rounded text-2xl text-purple-300">smart_toy</span>
+          </div>
+          <span class="text-[11px] text-white/85 font-medium tracking-tight truncate w-full text-center">Jovi Voice</span>
+        </div>
+
+        <!-- Customizer Studio -->
+        <div onclick="openCustomizer()" class="flex flex-col items-center space-y-1.5 cursor-pointer spring-press">
+          <div class="w-14 h-14 rounded-[22px] liquid-glass flex items-center justify-center shadow-lg border border-cyan-400/40 bg-gradient-to-br from-cyan-400/30 to-blue-500/30 shadow-[0_0_15px_rgba(34,211,238,0.25)]">
+            <span class="material-symbols-rounded text-2xl text-cyan-300">palette</span>
+          </div>
+          <span class="text-[11px] text-cyan-200 font-semibold tracking-tight truncate w-full text-center">Customize</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- BOTTOM SECTION: Swipe Handle & Liquid Dock Bar -->
+    <footer class="w-full flex flex-col items-center space-y-2 pb-1">
+      <!-- App Drawer Pull Handle Indicator -->
+      <button onclick="toggleAppDrawer()" class="flex flex-col items-center space-y-1 py-1 px-4 text-white/70 hover:text-white transition group cursor-pointer">
+        <span class="material-symbols-rounded text-lg group-hover:-translate-y-0.5 transition-transform">keyboard_arrow_up</span>
+        <span class="text-[10px] font-medium tracking-wider uppercase text-white/60">Swipe up for Apps</span>
+      </button>
+
+      <!-- FROSTED LIQUID DOCK BAR -->
+      <div class="w-full liquid-dock-bar rounded-[34px] px-4 py-2.5 shadow-2xl flex items-center justify-around">
+        <!-- Phone -->
+        <button onclick="openApp('Phone', 'call')" class="w-12 h-12 rounded-2xl liquid-glass flex items-center justify-center shadow-md spring-press bg-emerald-500/25 border-emerald-400/40">
+          <span class="material-symbols-rounded text-2xl text-emerald-300">call</span>
+        </button>
+
+        <!-- Messages -->
+        <button onclick="openApp('Messages', 'chat')" class="w-12 h-12 rounded-2xl liquid-glass flex items-center justify-center shadow-md spring-press bg-blue-500/25 border-blue-400/40">
+          <span class="material-symbols-rounded text-2xl text-blue-300">chat</span>
+        </button>
+
+        <!-- Vivo Origin Browser -->
+        <button onclick="openApp('Origin Browser', 'explore')" class="w-12 h-12 rounded-2xl liquid-glass flex items-center justify-center shadow-md spring-press bg-cyan-500/25 border-cyan-400/40">
+          <span class="material-symbols-rounded text-2xl text-cyan-300">explore</span>
+        </button>
+
+        <!-- Vivo Music -->
+        <button onclick="openApp('iQOO Music', 'music_note')" class="w-12 h-12 rounded-2xl liquid-glass flex items-center justify-center shadow-md spring-press bg-amber-500/25 border-amber-400/40">
+          <span class="material-symbols-rounded text-2xl text-amber-300">music_note</span>
+        </button>
+
+        <!-- Settings -->
+        <button onclick="openApp('Settings', 'settings')" class="w-12 h-12 rounded-2xl liquid-glass flex items-center justify-center shadow-md spring-press bg-slate-500/25 border-slate-300/40">
+          <span class="material-symbols-rounded text-2xl text-slate-200">settings</span>
+        </button>
+      </div>
+
+      <!-- Android Home Bar Pill -->
+      <div class="w-32 h-1 bg-white/40 rounded-full mt-1.5 cursor-pointer" onclick="goHome()"></div>
+    </footer>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL / SHEET 1: FLUID ORIGIN OS APP DRAWER -->
+  <!-- ============================================== -->
+  <div id="app-drawer" class="fixed inset-x-0 bottom-0 top-[var(--safe-top)] z-40 bg-slate-950/85 backdrop-blur-[40px] transform translate-y-full rounded-t-[38px] border-t border-white/20 shadow-2xl flex flex-col p-5 pb-[var(--safe-bottom)]">
+    <!-- Drag indicator -->
+    <div class="w-full flex justify-center pb-2 cursor-pointer" onclick="toggleAppDrawer()">
+      <div class="w-12 h-1.5 bg-white/35 rounded-full hover:bg-white/60 transition"></div>
+    </div>
+
+    <!-- Header & Search bar -->
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center space-x-2">
+        <h3 class="text-lg font-bold text-white tracking-tight">OriginOS Applications</h3>
+        <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono">Ocean Engine</span>
+      </div>
+      <button onclick="toggleAppDrawer()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/70 hover:text-white">
+        <span class="material-symbols-rounded text-lg">close</span>
+      </button>
+    </div>
+
+    <!-- Search input -->
+    <div class="relative w-full mb-4">
+      <span class="material-symbols-rounded absolute left-3.5 top-1/2 -translate-y-1/2 text-white/40 text-lg">search</span>
+      <input type="text" id="app-search-input" oninput="filterApps(event)" placeholder="Search apps, widgets, or shortcuts..."
+             class="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white/10 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:border-cyan-400 focus:bg-white/15 transition backdrop-blur-md" />
+    </div>
+
+    <!-- Apps Grid (Scrollable) -->
+    <div id="apps-grid-container" class="flex-1 overflow-y-auto no-scrollbar grid grid-cols-4 gap-y-5 gap-x-3 pt-1 content-start">
+      <!-- Populated dynamically via JS -->
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL 2: ORIGINOS LIQUID STUDIO (CUSTOMIZER) -->
+  <!-- ============================================== -->
+  <div id="customizer-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 hidden transition-opacity duration-300">
+    <div class="w-full max-w-md liquid-glass rounded-t-[36px] sm:rounded-[36px] p-6 border border-white/30 shadow-2xl flex flex-col space-y-5 pb-[calc(var(--safe-bottom)+1.5rem)]">
+      <div class="flex justify-between items-center pb-2 border-b border-white/15">
+        <div>
+          <h3 class="text-lg font-bold text-white">Liquid Glass Studio</h3>
+          <p class="text-xs text-cyan-300">OriginOS 4 Aesthetic Engine</p>
+        </div>
+        <button onclick="closeCustomizer()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white">
+          <span class="material-symbols-rounded text-lg">close</span>
+        </button>
+      </div>
+
+      <!-- Wallpaper Switcher -->
+      <div>
+        <label class="text-xs font-semibold text-white/80 uppercase tracking-wider block mb-2">Refraction Wallpaper</label>
+        <div class="grid grid-cols-5 gap-2">
+          <button onclick="setWallpaper(0)" class="h-14 rounded-2xl bg-cover bg-center border-2 border-cyan-400 ring-2 ring-cyan-400/50 spring-press" style="background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=300&q=80')"></button>
+          <button onclick="setWallpaper(1)" class="h-14 rounded-2xl bg-cover bg-center border border-white/30 spring-press" style="background-image: url('https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=300&q=80')"></button>
+          <button onclick="setWallpaper(2)" class="h-14 rounded-2xl bg-cover bg-center border border-white/30 spring-press" style="background-image: url('https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=300&q=80')"></button>
+          <button onclick="setWallpaper(3)" class="h-14 rounded-2xl bg-cover bg-center border border-white/30 spring-press" style="background-image: url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=300&q=80')"></button>
+          <button onclick="setWallpaper(4)" class="h-14 rounded-2xl bg-cover bg-center border border-white/30 spring-press" style="background-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=300&q=80')"></button>
+        </div>
+      </div>
+
+      <!-- Backdrop Blur Range -->
+      <div>
+        <div class="flex justify-between text-xs text-white/80 mb-1">
+          <span>Glass Backdrop Blur</span>
+          <span id="blur-val-text" class="font-mono text-cyan-300">28px</span>
+        </div>
+        <input type="range" min="10" max="60" value="28" oninput="changeBlur(this.value)" class="w-full accent-cyan-400 cursor-pointer" />
+      </div>
+
+      <!-- Glass Opacity Range -->
+      <div>
+        <div class="flex justify-between text-xs text-white/80 mb-1">
+          <span>Glass Refraction Density</span>
+          <span id="opacity-val-text" class="font-mono text-cyan-300">18%</span>
+        </div>
+        <input type="range" min="8" max="45" value="18" oninput="changeOpacity(this.value)" class="w-full accent-cyan-400 cursor-pointer" />
+      </div>
+
+      <!-- Light Sweep Toggle -->
+      <div class="flex items-center justify-between pt-1">
+        <div>
+          <span class="text-sm font-medium text-white block">Specular Shimmer Ray</span>
+          <span class="text-[11px] text-white/60">Light sweeps across frosted cards</span>
+        </div>
+        <input type="checkbox" id="shimmer-toggle" checked onchange="toggleShimmer(this.checked)" class="w-5 h-5 accent-cyan-400 rounded cursor-pointer" />
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- APP LAUNCH / SIMULATION OVERLAY -->
+  <!-- ============================================== -->
+  <div id="app-launch-overlay" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-6 hidden opacity-0 transition-opacity duration-300">
+    <div id="launched-app-icon-container" class="w-20 h-20 rounded-3xl liquid-glass flex items-center justify-center shadow-2xl mb-4 border border-cyan-400/50">
+      <span id="launched-app-icon" class="material-symbols-rounded text-4xl text-cyan-300">apps</span>
+    </div>
+    <h2 id="launched-app-title" class="text-2xl font-bold text-white mb-2">Application</h2>
+    <p class="text-xs text-cyan-300/80 mb-8 font-mono">OriginOS Virtual Environment Active</p>
+
+    <!-- Simulated app card content -->
+    <div class="w-full max-w-xs liquid-glass rounded-2xl p-4 text-center border border-white/20 mb-6">
+      <div class="w-8 h-8 rounded-full bg-cyan-400/20 text-cyan-300 flex items-center justify-center mx-auto mb-2">
+        <span class="material-symbols-rounded text-lg">check_circle</span>
+      </div>
+      <p class="text-xs text-white/80">Application initiated smoothly with Zero-Lag Frame Rate Engine.</p>
+    </div>
+
+    <button onclick="closeLaunchedApp()" class="px-6 py-2.5 rounded-full bg-white/20 hover:bg-white/30 text-white font-medium text-sm spring-press border border-white/30 flex items-center space-x-1.5">
+      <span class="material-symbols-rounded text-base">arrow_back</span>
+      <span>Return to Home</span>
+    </button>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-pill" class="fixed top-12 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 transform -translate-y-4">
+    <div class="liquid-pill px-4 py-2 rounded-full border border-cyan-400/40 shadow-2xl flex items-center space-x-2 text-xs font-semibold text-white">
+      <span id="toast-icon" class="material-symbols-rounded text-cyan-300 text-sm">info</span>
+      <span id="toast-msg">Notification</span>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // System Wallpapers
+    const wallpapers = [
+      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=80'
+    ];
+
+    // OriginOS Built-in Application Catalog
+    const appCatalog = [
+      { name: 'Phone', icon: 'call', color: 'from-emerald-500/25 to-teal-500/25', iconColor: 'text-emerald-300' },
+      { name: 'Messages', icon: 'chat', color: 'from-blue-500/25 to-cyan-500/25', iconColor: 'text-blue-300' },
+      { name: 'Origin Browser', icon: 'explore', color: 'from-cyan-500/25 to-sky-500/25', iconColor: 'text-cyan-300' },
+      { name: 'Camera', icon: 'photo_camera', color: 'from-blue-600/25 to-cyan-600/25', iconColor: 'text-cyan-200' },
+      { name: 'Albums', icon: 'photo_library', color: 'from-pink-500/25 to-rose-500/25', iconColor: 'text-pink-300' },
+      { name: 'iQOO Music', icon: 'music_note', color: 'from-amber-500/25 to-orange-500/25', iconColor: 'text-amber-300' },
+      { name: 'Settings', icon: 'settings', color: 'from-slate-500/25 to-zinc-500/25', iconColor: 'text-slate-200' },
+      { name: 'iManager', icon: 'verified_user', color: 'from-teal-500/25 to-emerald-500/25', iconColor: 'text-teal-300' },
+      { name: 'Clock', icon: 'schedule', color: 'from-amber-400/25 to-yellow-500/25', iconColor: 'text-amber-200' },
+      { name: 'Weather', icon: 'partly_cloudy_day', color: 'from-sky-400/25 to-blue-500/25', iconColor: 'text-sky-300' },
+      { name: 'Calculator', icon: 'calculate', color: 'from-orange-500/25 to-amber-500/25', iconColor: 'text-orange-300' },
+      { name: 'Notes', icon: 'edit_note', color: 'from-yellow-500/25 to-amber-500/25', iconColor: 'text-yellow-300' },
+      { name: 'Files', icon: 'folder', color: 'from-cyan-500/25 to-blue-500/25', iconColor: 'text-cyan-300' },
+      { name: 'Game Space', icon: 'sports_esports', color: 'from-red-500/25 to-purple-500/25', iconColor: 'text-red-300' },
+      { name: 'Jovi AI', icon: 'smart_toy', color: 'from-purple-500/25 to-cyan-500/25', iconColor: 'text-purple-300' },
+      { name: 'Sound Recorder', icon: 'mic', color: 'from-rose-500/25 to-red-500/25', iconColor: 'text-rose-300' },
+      { name: 'Compass', icon: 'explore_nearby', color: 'from-emerald-500/25 to-cyan-500/25', iconColor: 'text-emerald-300' },
+      { name: 'Atomic Wallet', icon: 'account_balance_wallet', color: 'from-indigo-500/25 to-violet-500/25', iconColor: 'text-indigo-300' },
+      { name: 'App Store', icon: 'shopping_bag', color: 'from-blue-500/25 to-indigo-500/25', iconColor: 'text-blue-300' },
+      { name: 'Themes', icon: 'palette', color: 'from-pink-500/25 to-purple-500/25', iconColor: 'text-pink-300' }
+    ];
+
+    let isPlaying = true;
+    let trackProgress = 45;
+    let isDrawerOpen = false;
+
+    // Clock Updater
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+
+      const hourMinStr = `${hours}:${minutes}`;
+      document.getElementById('clock-hour-min').textContent = hourMinStr;
+      document.getElementById('status-time').textContent = hourMinStr;
+      document.getElementById('clock-seconds').textContent = seconds;
+
+      const options = { weekday: 'long', month: 'short', day: 'numeric' };
+      document.getElementById('clock-date').textContent = now.toLocaleDateString('en-US', options);
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Render Applications Grid
+    function renderApps(list) {
+      const container = document.getElementById('apps-grid-container');
+      container.innerHTML = '';
+      list.forEach(app => {
+        const item = document.createElement('div');
+        item.className = 'flex flex-col items-center space-y-2 cursor-pointer spring-press';
+        item.onclick = () => openApp(app.name, app.icon);
+        item.innerHTML = `
+          <div class="w-14 h-14 rounded-[22px] liquid-glass flex items-center justify-center shadow-md border border-white/25 bg-gradient-to-br ${app.color}">
+            <span class="material-symbols-rounded text-2xl ${app.iconColor}">${app.icon}</span>
+          </div>
+          <span class="text-xs text-white/90 font-medium tracking-tight truncate w-full text-center px-1">${app.name}</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+    renderApps(appCatalog);
+
+    // Search App Drawer Filter
+    function filterApps(e) {
+      const query = e.target.value.toLowerCase().trim();
+      const filtered = appCatalog.filter(a => a.name.toLowerCase().includes(query));
+      renderApps(filtered);
+    }
+
+    // Atomic Island Expanding
+    function expandIsland() {
+      document.getElementById('atomic-island-pill').classList.add('hidden');
+      const expanded = document.getElementById('atomic-island-expanded');
+      expanded.classList.remove('hidden');
+    }
+
+    function collapseIsland() {
+      document.getElementById('atomic-island-expanded').classList.add('hidden');
+      document.getElementById('atomic-island-pill').classList.remove('hidden');
+    }
+
+    // Music playback
+    function togglePlayMusic() {
+      isPlaying = !isPlaying;
+      const icon = document.getElementById('island-play-icon');
+      icon.textContent = isPlaying ? 'pause' : 'play_arrow';
+      showToast(isPlaying ? 'Resumed Hi-Res Playback' : 'Playback Paused', isPlaying ? 'play_arrow' : 'pause');
+    }
+
+    function skipTrack(direction) {
+      const titles = ['Crystal Symphony', 'Liquid Mirage', 'Ocean Horizon', 'Atomic Velocity'];
+      const randomTitle = titles[Math.floor(Math.random() * titles.length)];
+      document.getElementById('island-pill-title').textContent = randomTitle;
+      showToast(`Now playing: ${randomTitle}`, 'music_note');
+    }
+
+    function scrubTrack(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const pct = Math.max(0, Math.min(100, Math.round((clickX / rect.width) * 100)));
+      document.getElementById('track-progress-bar').style.width = pct + '%';
+    }
+
+    // App Drawer Toggle
+    function toggleAppDrawer() {
+      isDrawerOpen = !isDrawerOpen;
+      const drawer = document.getElementById('app-drawer');
+      if (isDrawerOpen) {
+        drawer.classList.remove('translate-y-full');
+        document.getElementById('app-search-input').focus();
+      } else {
+        drawer.classList.add('translate-y-full');
+      }
+    }
+
+    // Return Home
+    function goHome() {
+      if (isDrawerOpen) toggleAppDrawer();
+      collapseIsland();
+      closeCustomizer();
+      closeLaunchedApp();
+    }
+
+    // System Boost Animation
+    function boostSystem(e) {
+      e.stopPropagation();
+      const title = document.getElementById('boost-status-title');
+      const ramText = document.getElementById('ram-usage-text');
+      const ramBar = document.getElementById('ram-progress');
+
+      title.textContent = 'Freeing Virtual GPU & RAM...';
+      title.classList.add('text-cyan-300');
+
+      setTimeout(() => {
+        ramText.textContent = '24%';
+        ramBar.style.width = '24%';
+        title.textContent = 'Engine Boosted! +2.4GB Released';
+        showToast('OriginOS 4 Clean: +2.4GB RAM Optimized', 'verified');
+        setTimeout(() => {
+          title.textContent = 'One-Tap Deep Boost';
+          title.classList.remove('text-cyan-300');
+        }, 2500);
+      }, 700);
+    }
+
+    // Quick toggles
+    let monsterMode = false;
+    let torchOn = false;
+    function toggleQuickToggle(type) {
+      if (type === 'battery-saver') {
+        monsterMode = !monsterMode;
+        const btn = document.getElementById('toggle-battery-saver');
+        if (monsterMode) {
+          btn.classList.add('bg-amber-500/30', 'border-amber-400');
+          showToast('Monster Mode Activated: Max CPU Clocks', 'bolt');
+        } else {
+          btn.classList.remove('bg-amber-500/30', 'border-amber-400');
+          showToast('Balanced OriginOS Power Mode', 'battery_saver');
+        }
+      } else if (type === 'torch') {
+        torchOn = !torchOn;
+        const btn = document.getElementById('toggle-torch');
+        btn.classList.toggle('bg-cyan-500/30', torchOn);
+        showToast(torchOn ? 'Torch On' : 'Torch Off', 'flashlight_on');
+      }
+    }
+
+    // App Simulation
+    function openApp(appName, iconName) {
+      if (isDrawerOpen) toggleAppDrawer();
+      const overlay = document.getElementById('app-launch-overlay');
+      document.getElementById('launched-app-title').textContent = appName;
+      document.getElementById('launched-app-icon').textContent = iconName;
+
+      overlay.classList.remove('hidden');
+      setTimeout(() => {
+        overlay.classList.remove('opacity-0');
+      }, 10);
+    }
+
+    function closeLaunchedApp() {
+      const overlay = document.getElementById('app-launch-overlay');
+      overlay.classList.add('opacity-0');
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+      }, 300);
+    }
+
+    // Customizer Modal
+    function openCustomizer() {
+      const modal = document.getElementById('customizer-modal');
+      modal.classList.remove('hidden');
+    }
+
+    function closeCustomizer() {
+      const modal = document.getElementById('customizer-modal');
+      modal.classList.add('hidden');
+    }
+
+    function setWallpaper(idx) {
+      document.getElementById('wallpaper-bg').style.backgroundImage = `url('${wallpapers[idx]}')`;
+      showToast('Liquid Glass Wallpaper Applied', 'wallpaper');
+    }
+
+    function changeBlur(val) {
+      document.documentElement.style.setProperty('--glass-blur', `${val}px`);
+      document.getElementById('blur-val-text').textContent = `${val}px`;
+    }
+
+    function changeOpacity(val) {
+      const op = val / 100;
+      document.documentElement.style.setProperty('--glass-opacity', op);
+      document.getElementById('opacity-val-text').textContent = `${val}%`;
+    }
+
+    function toggleShimmer(enabled) {
+      document.querySelectorAll('.shimmer-active').forEach(el => {
+        if (!enabled) el.classList.remove('shimmer-active');
+        else el.classList.add('shimmer-active');
+      });
+      showToast(enabled ? 'Specular Shimmer Enabled' : 'Specular Shimmer Disabled', 'flare');
+    }
+
+    // Toast Notification helper
+    let toastTimeout;
+    function showToast(msg, icon = 'info') {
+      const toast = document.getElementById('toast-pill');
+      document.getElementById('toast-msg').textContent = msg;
+      document.getElementById('toast-icon').textContent = icon;
+      toast.classList.remove('opacity-0', '-translate-y-4');
+
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('opacity-0', '-translate-y-4');
+      }, 2200);
+    }
+
+    // Mobile Swipe Gestures
+    let touchStartY = 0;
+    window.addEventListener('touchstart', (e) => {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    window.addEventListener('touchend', (e) => {
+      const touchEndY = e.changedTouches[0].clientY;
+      const diffY = touchStartY - touchEndY;
+
+      // Swipe up (threshold 70px) opens drawer
+      if (diffY > 70 && !isDrawerOpen) {
+        toggleAppDrawer();
+      }
+      // Swipe down closes drawer
+      if (diffY < -70 && isDrawerOpen) {
+        toggleAppDrawer();
+      }
+    }, { passive: true });
+
+    // Handle Hardware Back button (Android WebView interface)
+    window.addEventListener('popstate', () => {
+      goHome();
+    });
+  </script>
+</body>
+</html>

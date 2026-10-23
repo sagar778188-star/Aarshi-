@@ -1,0 +1,6 @@
+{
+  "name": "OriginOS",
+  "description": "Vivo/iQOO OriginOS clone featuring the Liquid Glass UI aesthetic, Atomic Island, frosted widgets, and installable Android Home Launcher capability.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

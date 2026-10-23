@@ -1,0 +1,34 @@
+{
+  "name": "originos-liquid-glass-launcher",
+  "version": "1.0.0",
+  "description": "Vivo/iQOO OriginOS clone with Liquid Glass UI aesthetic for Android Home Launcher",
+  "main": "index.html",
+  "scripts": {
+    "build": "mkdir -p dist && cp index.html dist/",
+    "cap:sync": "cap sync android",
+    "cap:open": "cap open android",
+    "cap:copy": "cap copy android"
+  },
+  "keywords": [
+    "originos",
+    "liquid-glass",
+    "android-launcher",
+    "home-launcher",
+    "capacitor",
+    "glassmorphism",
+    "iqoo"
+  ],
+  "author": "OriginOS Architect",
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/app": "^6.0.2",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/haptics": "^6.0.2",
+    "@capacitor/keyboard": "^6.0.3",
+    "@capacitor/status-bar": "^6.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.2.0"
+  }
+}

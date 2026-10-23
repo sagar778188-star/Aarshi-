@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Outer Cyan Glow Ring -->
+    <path
+        android:pathData="M54,28 A26,26 0 1,0 54,80 A26,26 0 1,0 54,28"
+        android:strokeWidth="3.5"
+        android:strokeColor="#38BDF8"
+        android:fillColor="#00000000" />
+    <!-- Secondary Glass Arc -->
+    <path
+        android:pathData="M38,36 A24,24 0 0,1 76,46"
+        android:strokeWidth="2.5"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Core Glass Orb -->
+    <path
+        android:pathData="M54,37 A17,17 0 1,0 54,71 A17,17 0 1,0 54,37">
+        <aapt:attr name="android:fillColor" xmlns:aapt="http://schemas.android.com/aapt">
+            <gradient
+                android:startX="40"
+                android:startY="37"
+                android:endX="68"
+                android:endY="71"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#00F0FF" />
+                <item android:offset="0.5" android:color="#0284C7" />
+                <item android:offset="1.0" android:color="#4F46E5" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Inner Refraction Specular Highlight -->
+    <path
+        android:pathData="M50,42 A7,5 30 0,1 58,47"
+        android:strokeWidth="2"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <!-- Atomic Center Dot -->
+    <path
+        android:pathData="M54,51 A3,3 0 1,0 54,57 A3,3 0 1,0 54,51"
+        android:fillColor="#FFFFFF" />
+</vector>
